@@ -104,7 +104,6 @@ def new_save():
 
 def check_for_save() -> bool :
     for file in os.listdir():
-        print(file)
         if os.path.isdir(file) and file == "saves" :
             return True
     return False
@@ -193,6 +192,12 @@ def main():
     pygame.quit()
 
 
+def startup():
+    print("Finish Startup")
+    pass
+
+
 if __name__ == "__main__":
+    startup()
     main()
 

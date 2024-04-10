@@ -54,3 +54,9 @@ def get_player_data_dict():
         "power": 0,
         "class_type": None
     }
+
+def get_map_data_dict():
+    return {
+        "biomes": {},
+        "tiles": []
+    }
