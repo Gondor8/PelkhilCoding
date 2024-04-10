@@ -1,20 +1,9 @@
 import pygame
-
-# TODO: figure out how to do this for all files and packages
-WIDTH, HEIGHT = 1000,1000
-PLAYER_WIDTH, PLAYER_HEIGHT = 20, 40
-NPC_WIDTH, NPC_HEIGHT = 20, 40
-MAX_VEL = 5
-FPS = 60
+import json
+import constants as c
 
 
-red = pygame.sprite.Group()
-white = pygame.sprite.Group()
-blue = pygame.sprite.Group()
-green = pygame.sprite.Group()
-black = pygame.sprite.Group()
-yellow = pygame.sprite.Group()
-npc = pygame.sprite.Group()
+
 
 class AbstractNPC(pygame.sprite.Sprite):
     """
@@ -34,7 +23,7 @@ class AbstractNPC(pygame.sprite.Sprite):
         super().__init__(*groups)
         self.rect = rect
         self.on_screen = self.check_on_screen()
-        self.add(npc)
+        self.add(c.npc)
 
     def change_group(self, old_group, new_group):
         """ used to do both remove and add groups in one method
@@ -61,9 +50,9 @@ class AbstractNPC(pygame.sprite.Sprite):
     def check_on_screen(self):
         
         self.on_screen = not(self.rect.right < 0 
-                             or self.rect.left > WIDTH 
+                             or self.rect.left > c.WIDTH 
                              or self.rect.bottom < 0 
-                             or self.rect.top > HEIGHT)
+                             or self.rect.top > c.HEIGHT)
         
     
     def load(self, save_dict):
@@ -108,7 +97,7 @@ class AbstractNPC(pygame.sprite.Sprite):
 class Combatant(AbstractNPC):
     """
     """
-    def __init__(self, *groups, rect=None, x=WIDTH/2, y=HEIGHT/2, width=NPC_WIDTH, height=NPC_HEIGHT):
+    def __init__(self, rect=None, x=c.WIDTH/2, y=c.HEIGHT/2, width=c.NPC_WIDTH, height=c.NPC_HEIGHT, *groups):
         if rect:
             super().__init__(rect, *groups)
         else:
@@ -118,7 +107,7 @@ class Combatant(AbstractNPC):
 class Civilian(AbstractNPC):
     """
     """
-    def __init__(self, *groups, rect=None,  x=WIDTH/2, y=HEIGHT/2, width=NPC_WIDTH, height=NPC_HEIGHT):
+    def __init__(self, rect=None,  x=c.WIDTH/2, y=c.HEIGHT/2, width=c.NPC_WIDTH, height=c.NPC_HEIGHT, *groups):
         if rect:
             super().__init__(rect, *groups)
         else:

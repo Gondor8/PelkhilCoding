@@ -14,6 +14,8 @@ class Player(pygame.sprite.Sprite):
     experience: int
     level: int
     class_type: str
+    #location stores the reletive position of the player within the game context as a tuple (x, y, z)
+    location: tuple
 
     def __init__(self, rect, *groups):
         self.rect = rect
@@ -26,21 +28,22 @@ class Player(pygame.sprite.Sprite):
         self.experience = 0
         self.level = 0
         self.class_type = "none"
+        self.tuple = (0, 0, 0)
 
     def load(self, save_dict):
         """
         
         TODO: add tryblocks to prevent save corruption
         """
-        rect = self.rect_loader(save_dict["rect"])
-        color = self.color_loader(save_dict["color"])
-        on_screen = save_dict["on_screen"]
-        health = save_dict["health"]
-        mana = save_dict["mana"]
-        defence = save_dict["defence"]
-        power = save_dict["power"]
-        experience = save_dict["experience"]
-        level = save_dict["level"]
+        self.rect = self.rect_loader(save_dict["rect"])
+        self.color = self.color_loader(save_dict["color"])
+        self.on_screen = save_dict["on_screen"]
+        self.health = save_dict["health"]
+        self.mana = save_dict["mana"]
+        self.defence = save_dict["defence"]
+        self.power = save_dict["power"]
+        self.experience = save_dict["experience"]
+        self.level = save_dict["level"]
 
     def rect_loader(rect_save):
         """ for loading the converted/ overridden string cast for rect.

@@ -2,70 +2,34 @@ import pygame
 import random
 import math
 import json
-from os import listdir
-from os.path import isdir, join
+import os
 
+
+import constants as c
 import utilities
 import npc
+import map
 import player as plr
 
-WIDTH, HEIGHT = 1000,1000
-BUTTON_WIDTH, BUTTON_HEIGHT = WIDTH/5, HEIGHT/10
-PLAYER_WIDTH, PLAYER_HEIGHT = 20, 40
-NPC_WIDTH, NPC_HEIGHT = 20, 40
-MAX_VEL = 5
-FPS = 60
+os.chdir(c.PTWD)
 
+WIDTH, HEIGHT = c.WIDTH, c.HEIGHT
+BUTTON_WIDTH, BUTTON_HEIGHT = WIDTH/5, HEIGHT/10
+PLAYER_WIDTH, PLAYER_HEIGHT = c.PLAYER_WIDTH, c.PLAYER_HEIGHT
+NPC_WIDTH, NPC_HEIGHT = c.NPC_WIDTH, c.NPC_HEIGHT
+MAX_VEL = c.MAX_VEL
+FPS = c.FPS
+
+game_map: map.Map
 
 pygame.init()
 
 window = pygame.display.set_mode((WIDTH, HEIGHT))
 clock = pygame.time.Clock()
+player = plr.Player(pygame.Rect(WIDTH/2 - PLAYER_WIDTH/2, HEIGHT/2 - PLAYER_HEIGHT/2, PLAYER_WIDTH, PLAYER_HEIGHT))
+ref_x, ref_y = 0,0
+
 pygame.display.set_caption("Coding Club Example Code")
-
-entities = []
-
-class Entity:
-    """
-    Class for containing self made entities or as pygame calls them, sprites
-    
-
-    TODO: Change this out to make use of the Sprites from pygame
-    """
-    x, y = 0, 0
-    on_screen = True
-    rect = pygame.Rect(x,y,x,y)
-    color = "green"
-
-    def __init__(self, x=random.random()*WIDTH, y=random.random()*HEIGHT, width=PLAYER_WIDTH, height=PLAYER_HEIGHT):
-        self.x = x
-        self.y = y
-        self.rect = pygame.Rect(self.x, self.y, width, height)
-
-    def update(self):
-        self.rect.x = self.x
-        self.rect.y = self.y
-
-#TODO: make motion and direction deal by directions(rad) and distance(x)
-def get_vel_towards(entity: pygame.sprite.Sprite, objective: pygame.sprite.Sprite):
-    """
-    When one entity needs to move towards another
-
-    :param entity:
-    :param objective
-    """
-    velx,vely = 0,0
-    if entity.x < objective.x:
-        velx = MAX_VEL
-    else:
-        velx = -MAX_VEL
-    if entity.y < objective.y:
-        vely = MAX_VEL
-    else:
-        vely = -MAX_VEL
-    # Normalize the speed so the player doesn't move faster when going diagonal
-    if math.sqrt(math.pow(velx, 2) + math.pow(vely, 2)) > MAX_VEL:
-        velx, vely = velx/math.sqrt(2), vely/math.sqrt(2)
     
 
 def draw(p_rect):
@@ -73,26 +37,27 @@ def draw(p_rect):
     
     :param player (pygame.sprit.Sprite):
     """
-    window.fill("black")
-    pygame.draw.rect(window, "blue", p_rect)
-    for ent in entities:
-        pygame.draw.rect(window, ent.color, ent.rect)
-    
+    window.fill("red")
+    window.blit(game_map.get_surface(), (ref_x-c.MAP_WIDTH/2, ref_y-c.MAP_HEIGHT/2))
+    pygame.draw.rect(window, "blue", p_rect)    
     pygame.display.update()
-
-
-def is_on_screen(ent):
-    if ent.rect.right < 0 or ent.rect.left > WIDTH or ent.rect.bottom < 0 or ent.rect.top > HEIGHT:
-        ent.on_screen = False
-    return ent.on_screen
 
 
 def update_position(vel_x, vel_y):
     #TODO: handle this using the groups provided by pygame
-    for ent in entities:
-        ent.x -= vel_x
-        ent.y -= vel_y
-        ent.update()
+    global ref_x, ref_y
+    if player.rect.x + vel_x < WIDTH/10:
+        ref_x -= vel_x
+    elif player.rect.x + vel_x > WIDTH * 9/10:
+        ref_x -= vel_x
+    else:
+        player.rect.x += vel_x
+    if player.rect.y + vel_y < HEIGHT/10:
+        ref_y -= vel_y
+    elif player.rect.y + vel_y > HEIGHT * 9/10:
+        ref_y -= vel_y
+    else:
+        player.rect.y += vel_y
 
 def save(player):
     """ save the current game data
@@ -107,11 +72,11 @@ def save(player):
     json.dump(player_dict, player_save_file, indent=4)
     player_save_file.close()
     index = 0
-    for npc_obj in npc.npc:
+    for npc_obj in c.npc:
         npc_file = open(f"saves/player_save{index}.json", "w")
         npc_dict = utilities.get_npc_data_dict()
         for variable in npc_dict:
-            npc_dict[variable] = npc.obj.get(variable)
+            npc_dict[variable] = npc_obj.get(variable)
         json.dump(npc_dict, npc_file, indent=4)
         npc_file.close()
 
@@ -119,15 +84,28 @@ def load_saves():
     print("Save Loaded")
     #make player object with the needed rect pass
     player_main = plr.Player(None)
-    player_main.load(json.load("saves/player_save.json"))
+    with open("saves/player_save.json", "r") as player_save:
+        player_main.load(json.load(player_save))
+        player_save.close()
+    for file in os.listdir("saves"):
+        if file != "player_save.json":
+            with open(f"saves/{file}", "r") as npc_save:
+                #change this so the loaded npc is not always a Combatant
+                npc_obj = npc.Combatant(None)
+                npc_obj.load(json.load(npc_save))
+                c.npc.append(npc_obj)
+                npc_save.close()
 
 def new_save():
+    global game_map
     print("Load New Save")
+    game_map = map.Map()
 
 
 def check_for_save() -> bool :
-    for file in listdir("/"):
-        if isdir(file) and file == "saves" :
+    for file in os.listdir():
+        print(file)
+        if os.path.isdir(file) and file == "saves" :
             return True
     return False
 
@@ -166,6 +144,7 @@ def title_screen_loop():
         else:
             new_game_button_color = "gray"
         window.fill("black")
+        window.blit(utilities.get_text_surface("Coding Club Example", title_font), (WIDTH/2 - 300, HEIGHT/10))
         pygame.draw.rect(window, new_game_button_color, new_game_button_rect)
         window.blit(new_game_button_text, (new_game_button_rect.x + 10, new_game_button_rect.y + 10))
         pygame.draw.rect(window, load_save_button_color, load_save_button_rect)
@@ -179,7 +158,7 @@ def main():
     this is where we control things and call all of the stuff we want to happen in the game
     
     """
-    player = plr.Player(pygame.Rect(WIDTH/2 - PLAYER_WIDTH/2, HEIGHT/2 - PLAYER_HEIGHT/2, PLAYER_WIDTH, PLAYER_HEIGHT))
+    
     title_screen_loop() 
     running = True   
     while running:
@@ -204,6 +183,8 @@ def main():
             vel_x, vel_y = vel_x/math.sqrt(2), vel_y/math.sqrt(2)
         update_position(vel_x, vel_y)
         draw(player.rect)
+
+        # Exit the game, can be used later to handle other events
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 #TODO: add if player is loaded to prevent unnecisary saves (maybe never mind)
