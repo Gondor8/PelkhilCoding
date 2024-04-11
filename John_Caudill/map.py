@@ -12,6 +12,8 @@ class Biome:
     """
     
     """
+
+    # REMINDER: Update the save funciton with any new data 
     owner: pygame.sprite.Group
     owner_name: str
     color: pygame.color.Color
@@ -29,6 +31,8 @@ class Biome:
 
 
     def find_owner() -> str:
+        """ TODO: Finish implimenting this
+        """
         return ""
 
     def make_wall(self, radius):
@@ -45,7 +49,7 @@ class Biome:
         return wall_list
     
 
-    def get_save(self):
+    def get_save_data(self) -> dict:
         return {
             "owner_name": self.owner_name,
             "color": self.color,
@@ -73,6 +77,23 @@ class Biome_tiles():
         self.biome_type = biome_type
         self.index_i = index_i
         self.index_j = index_j
+    
+    def get_save_data(self) -> dict:
+        rect_list = [self.rect.x, self.rect.y, self.rect.w, self.rect.h]
+        if isinstance(self.color, tuple):
+            #color could be stored in two types, either a tuple of len 3 or 4
+            color_list = list(self.color)
+        else: 
+            # or as string, and we can't put tuples in .json files
+            color_list = self.color
+        return{
+            "index_i": self.index_i,
+            "index_j": self.index_j,
+            "rect": rect_list,
+            "color": color_list,
+            "name": self.name,
+            "biome_type": self.biome_type,
+        }
 
 
 class Map:
