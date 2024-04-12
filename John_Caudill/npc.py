@@ -44,6 +44,10 @@ class AbstractNPC(pygame.sprite.Sprite):
         """
         self.x += velx
         self.y += vely
+    
+    def save(self):
+        # TODO: this save process needs to be standardized
+        pass
 
 
     # check if the edges of the rectangle representing this NPC is on the screen, stored in a bool for all NPCs
@@ -102,6 +106,10 @@ class Combatant(AbstractNPC):
             super().__init__(rect, *groups)
         else:
             super().__init__(pygame.Rect(x, y, width, height), *groups)
+
+    def load(self, save_dict):
+        super().load(save_dict)
+        #put extra loads here per class
     
 
 class Civilian(AbstractNPC):
@@ -112,6 +120,13 @@ class Civilian(AbstractNPC):
             super().__init__(rect, *groups)
         else:
             super().__init__(pygame.Rect(x, y, width, height), *groups)
+    
+
+    def load(self, save_dict):
+        super().load(save_dict)
+        #put extra loads here
+    
+
 
 # class Soldier(pygame.sprite.Sprite):
 

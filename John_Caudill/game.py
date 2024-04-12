@@ -6,6 +6,7 @@ import os
 
 
 import constants as c
+from constants import Identity
 import utilities
 import npc
 import map
@@ -59,20 +60,17 @@ def update_position(vel_x, vel_y):
     else:
         player.rect.y += vel_y
 
-def save(player):
+def save():
     """ save the current game data
 
     TODO: impliment multiple saves
     """
     print("Saving Data:")
-    player_save_file = open("saves/player_save.json", "w")
-    player_dict = utilities.get_player_data_dict()
-    for variable in player_dict:
-        player_dict[variable] = player.get(variable)
-    json.dump(player_dict, player_save_file, indent=4)
-    player_save_file.close()
+    
     index = 0
     for npc_obj in c.npc:
+        if isinstance(npc_obj, Identity):
+            continue
         npc_file = open(f"saves/player_save{index}.json", "w")
         npc_dict = utilities.get_npc_data_dict()
         for variable in npc_dict:
@@ -187,7 +185,7 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 #TODO: add if player is loaded to prevent unnecisary saves (maybe never mind)
-                save(player)
+                save()
                 running = False
     pygame.quit()
 
