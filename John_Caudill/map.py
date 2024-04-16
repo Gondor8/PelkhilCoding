@@ -1,6 +1,7 @@
 import pygame
 import random
 import math
+import json
 
 import constants as c
 import biomes
@@ -104,6 +105,7 @@ class Map:
             for tup in wall_list[1]:
                 #changes color of interior of wall tiles
                 self.tiles[tup[0]][tup[1]].color = self.biome_dict[group].color
+                self.biome_dict[group].add_tile(tup[0], tup[1])
 
 
     def make_boundary():
@@ -118,12 +120,13 @@ class Map:
         if variable == "biomes":
             temp_dict = {}
             for biome in self.biome_dict:
-                temp_dict[biome] = self.biome_dict[biome].get_save()
+                temp_dict[biome] = self.biome_dict[biome].get_save_data()
             return temp_dict
         elif variable == "tiles":
             temp_list = []
-            for tile in self.tiles:
-                temp_list.append(tile.get_save_data())
+            for tile_row in self.tiles:
+                for tile in tile_row:
+                    temp_list.append(tile.get_save_data())
             return temp_list
         else:
             return eval(variable, globals(), self.__dict__)
@@ -147,4 +150,5 @@ class Map:
             save_dict[variable] = self.get(variable)
         return save_dict
         
-        
+
+    

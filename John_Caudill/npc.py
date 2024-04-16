@@ -1,8 +1,7 @@
 import pygame
 import json
 import constants as c
-
-
+import utilities
 
 
 class AbstractNPC(pygame.sprite.Sprite):
@@ -45,10 +44,18 @@ class AbstractNPC(pygame.sprite.Sprite):
         self.x += velx
         self.y += vely
     
-    def save(self):
+    def save(self, save_dict) -> dict:
         # TODO: this save process needs to be standardized
-        pass
-
+        for variable in save_dict:
+            save_dict[variable] = self.get(variable)
+        return save_dict
+    
+    def get(self, variable):
+        """TO BE OVERRIDEN IN EACH NPC CLASS
+        
+        """
+        return eval(variable, globals(), self.__dict__)
+        
 
     # check if the edges of the rectangle representing this NPC is on the screen, stored in a bool for all NPCs
     def check_on_screen(self):
@@ -58,43 +65,29 @@ class AbstractNPC(pygame.sprite.Sprite):
                              or self.rect.bottom < 0 
                              or self.rect.top > c.HEIGHT)
         
-    
     def load(self, save_dict):
         """
         
         TODO: add tryblocks to prevent save corruption
         """
-        rect = self.rect_loader(save_dict["rect"])
-        color = self.color_loader(save_dict["color"])
-        on_screen = save_dict["on_screen"]
-        health = save_dict["health"]
-        mana = save_dict["mana"]
-        defence = save_dict["defence"]
-        power = save_dict["power"]
-        class_type = save_dict["class_type"]
+        self.rect = utilities.rect_loader(save_dict["rect"])
+        self.color = utilities.color_loader(save_dict["color"])
+        self.on_screen = save_dict["on_screen"]
+        self.health = save_dict["health"]
+        self.mana = save_dict["mana"]
+        self.defence = save_dict["defence"]
+        self.power = save_dict["power"]
+        self.class_type = save_dict["class_type"]
 
-    def rect_loader(rect_save):
-        """ for loading the converted/ overridden string cast for rect.
-        
-        :param rect_save: list(left(float),top(float),width(float),height(float))
-        """
-        return pygame.rect.Rect(rect_save[0], rect_save[1], rect_save[2], rect_save[3])
-    
-    def color_loader(color_save) -> pygame.color.Color:
-        """ for loading the converted/overriden string cast for color
-        
-        :param color_save: list(r(int), g(int), b(int))
-        """
-        return pygame.color.Color(color_save[0], color_save[1], color_save[2])
         
     def get(self, variable):
         # pygame.Rect, string cast does not play nice with json so this fixes it
+        # TODO: figure out how to do this with proper overrides ANS: copy the load functionallity
         print(variable)
         if (variable == "rect"):
             return [self.rect.left, self.rect.top, self.rect.width, self.rect.height]
         if (variable == "color"):
             return [self.color.r, self.color.g, self.color.b]
-        print(eval(variable, globals(), self.__dict__))
         return eval(variable, globals(), self.__dict__)
 
 

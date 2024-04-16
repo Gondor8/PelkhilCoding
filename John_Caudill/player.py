@@ -69,8 +69,6 @@ class Player(pygame.sprite.Sprite):
         return eval(variable, globals(), self.__dict__)
 
     def save(self, save_dict) -> dict:
-        player_save_file = open("saves/player_save.json", "w")
         for variable in save_dict:
             save_dict[variable] = self.get(variable)
-        json.dump(save_dict, player_save_file, indent=4)
-        player_save_file.close()
+        return save_dict

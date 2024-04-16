@@ -1,5 +1,5 @@
 import pygame.font
-
+import json
 
 WHITE = (255,255,255)
 
@@ -60,3 +60,23 @@ def get_map_data_dict():
         "biomes": {},
         "tiles": []
     }
+
+def save_to(dict_func, save_func, file_path):
+    save_dict = save_func(dict_func())
+    save_file = open("saves/" + file_path + ".json", "w")
+    json.dump(save_dict, save_file, indent=4)
+    save_file.close()
+
+def rect_loader(rect_save):
+        """ for loading the converted/ overridden string cast for rect.
+        
+        :param rect_save: list(left(float),top(float),width(float),height(float))
+        """
+        return pygame.rect.Rect(rect_save[0], rect_save[1], rect_save[2], rect_save[3])
+
+def color_loader(color_save) -> pygame.color.Color:
+        """ for loading the converted/overriden string cast for color
+        
+        :param color_save: list(r(int), g(int), b(int))
+        """
+        return pygame.color.Color(color_save[0], color_save[1], color_save[2])

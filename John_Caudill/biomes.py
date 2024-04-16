@@ -29,6 +29,7 @@ class Biome:
         self.center = center
         self.owner = owner
         self.biome_name = biome_name
+        self.tile_list = []
         if owner == None:
             self.owner_name = ""
         else:
@@ -71,7 +72,6 @@ class Biome:
             "owner_name": self.owner_name,
             "color": self.color,
             "center": [self.center[0],self.center[1]],
-            "walkable": self.walkable,
             "tile_list": self.tile_list,
             "wall_list": self.wall_list,
             "biome_name": self.biome_name

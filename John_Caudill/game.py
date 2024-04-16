@@ -66,7 +66,8 @@ def save():
     TODO: impliment multiple saves
     """
     print("Saving Data:")
-    
+    utilities.save_to(utilities.get_player_data_dict, player.save, "player_save")
+    utilities.save_to(utilities.get_map_data_dict, game_map.save, "map_save")
     index = 0
     for npc_obj in c.npc:
         if isinstance(npc_obj, Identity):
